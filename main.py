@@ -17,17 +17,16 @@ def worker(bot, queue):
         chat_id = message.chat_id
         print("Got image from {}".format(chat_id))
 
-        # получаем информацию о картинке
+        
         image_info = message.photo[-1]
         image_file = bot.get_file(image_info)
         image_stream = BytesIO()
         image_file.download(out=image_stream)
 
-        # симулируем долгую работу сети, чтобы показать, почему нужен отдельный процесс и как это работает
+        
         class_ = 1#model.predict(image_stream)
         sleep(10)
 
-        # теперь отправим результат
         message.reply_text(str(class_))
         print("Sent Answer to user, predicted: {}".format(class_))
 
@@ -41,15 +40,15 @@ if __name__ == '__main__':
     from telegram.ext import Updater, MessageHandler, Filters
     import logging
 
-    # Включим самый базовый логгинг, чтобы видеть сообщения об ошибках
+    
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO)
-    # используем прокси, так как без него у меня ничего не работало(
+    
     updater = Updater(token=token)
     updater.dispatcher.add_handler(MessageHandler(Filters.photo, photo))
 
-    # Сделаем отдельный процесс для того, чтобы обрабатывать картинки
+   
     worker_args = (updater.bot, job_queue)
     worker_process = Process(target=worker, args=worker_args)
     worker_process.start()
